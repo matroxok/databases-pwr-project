@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,9 +58,9 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]  # NEXT APP
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
- 
+CORS_ALLOWED_ORIGINS = [os.getenv('FRONTEND_URL')]
+CSRF_TRUSTED_ORIGINS = [os.getenv('FRONTEND_URL')]
+
 AUTH_USER_MODEL = 'api.CustomUser'
 
 ROOT_URLCONF = 'backend.urls'
