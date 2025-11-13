@@ -7,13 +7,18 @@ from api import schemas
 
 api = NinjaAPI(csrf=True)
 
+
+@api.get("/health")
+def health_check(request):
+    return {"status": "ok", "message": "API is healthy"}
+
 #endpoint for get token session for nextjs
 @api.get("/set-csrf-token")
 def get_csrf_token(request):
-    return {"csrftoken": get_token(request)}\
+    return {"csrftoken": get_token(request)}
 
 
-@api.post("/login")
+@api.post("/auth/login")
 def login_view(request, payload: schemas.SignInSchema):
     user = authenticate(request, username=payload.email, password=payload.password)
     if user is not None:
@@ -21,7 +26,7 @@ def login_view(request, payload: schemas.SignInSchema):
         return {"success": True}
     return {"success": False, "message": "Invalid credentials"}
  
-@api.post("/logout", auth=django_auth)
+@api.post("/auth/logout", auth=django_auth)
 def logout_view(request):
     logout(request)
     return {"message": "Logged out"}
@@ -38,7 +43,7 @@ def user(request):
         "secret_fact": secret_fact
     }
  
-@api.post("/register")
+@api.post("/auth/register")
 def register(request, payload: schemas.SignInSchema):
     try:
         User.objects.create_user(username=payload.email, email=payload.email, password=payload.password)
