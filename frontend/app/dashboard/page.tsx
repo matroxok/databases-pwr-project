@@ -1,22 +1,6 @@
-'use client'
-
-import { logout } from '@/lib/routes'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { useAuthStore } from '@/lib/authStore'
-
-export function LogoutButton() {
-	const clear = useAuthStore(s => s.clear)
-	return (
-		<button
-			onClick={async () => {
-				await logout() // POST /logout z X-CSRFToken
-				clear()
-			}}>
-			Wyloguj
-		</button>
-	)
-}
+import { LogoutButton } from '@/components/logout-button'
 
 export default async function DashboardPage() {
 	const session = (await cookies()).get('sessionid')
