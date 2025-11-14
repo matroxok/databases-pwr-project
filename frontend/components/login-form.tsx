@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input'
 import { login, fetchMe } from '@/lib/routes'
 import { useAuthStore } from '@/lib/authStore'
 
+import Link from 'next/link'
+
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
 	const router = useRouter()
 	const setUser = useAuthStore(s => s.setUser)
@@ -135,7 +137,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 							</Field>
 
 							<FieldDescription className="text-center">
-								Don&apos;t have an account? <a href="#">Sign up</a>
+								Don&apos;t have an account? <Link href="/signup">Sign up</Link>
 							</FieldDescription>
 						</FieldGroup>
 					</form>

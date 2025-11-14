@@ -48,13 +48,13 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -63,6 +63,7 @@ FRONTEDN_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 
 CORS_ALLOWED_ORIGINS = [FRONTEDN_URL]
 CSRF_TRUSTED_ORIGINS = [FRONTEDN_URL] 
+
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
@@ -147,3 +148,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE   = "Lax"
+SESSION_COOKIE_SECURE = False  # dev
+CSRF_COOKIE_SECURE = False  #dev

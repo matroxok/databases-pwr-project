@@ -9,7 +9,7 @@ export default async function DashboardPage() {
 		redirect('/login')
 	}
 
-	const res = await fetch('http://localhost:8000/api/user', {
+	const res = await fetch('http://localhost:8000/api/auth/me', {
 		credentials: 'include',
 		headers: {
 			cookie: `sessionid=${session.value}`,
@@ -21,7 +21,7 @@ export default async function DashboardPage() {
 
 	return (
 		<div>
-			Witaj {user.name}! welcome.
+			Witaj {user.email}! welcome.
 			<LogoutButton />
 		</div>
 	)

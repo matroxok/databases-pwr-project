@@ -20,20 +20,40 @@ function headersWithCsrf(extra?: HeadersInit): HeadersInit {
 }
 
 export async function apiFetch<T>(path: string, options: RequestInit & { csrf?: boolean } = {}): Promise<T> {
-	const { csrf = false, headers, ...rest } = options
+	const { csrf = true, headers, ...rest } = options
 
 	const res = await fetch(`${API}${path}`, {
+		...rest,
 		credentials: 'include',
 		headers: csrf ? headersWithCsrf(headers) : headers,
-		...rest,
 	})
 
 	if (!res.ok) {
 		const text = await res.text().catch(() => '')
 		throw new Error(`API ${res.status}: ${text || res.statusText}`)
 	}
+
 	return (await res.json()) as T
 }
+
+// export async function apiFetch<T>(path: string, options: RequestInit & { csrf?: boolean } = {}): Promise<T> {
+// 	const { csrf = true, headers, ...rest } = options
+
+// 	const res = await fetch(`${API}${path}`, {
+// 		...options,
+// 		credentials: 'include', // 🔥 TO JEST KLUCZOWE
+// 		headers: {
+// 			'Content-Type': 'application/json',
+// 			...(options.headers || {}),
+// 		},
+// 	})
+
+// 	if (!res.ok) {
+// 		const text = await res.text().catch(() => '')
+// 		throw new Error(`API ${res.status}: ${text || res.statusText}`)
+// 	}
+// 	return (await res.json()) as T
+// }
 
 // export const fetchMe = () => apiFetch<any>('/user', { method: 'GET' })
 export const apiHealthCheck = () => apiFetch<any>('/health', { method: 'GET' })

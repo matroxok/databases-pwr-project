@@ -25,6 +25,15 @@ def login_view(request, payload: schemas.SignInSchema):
         login(request, user)
         return {"success": True}
     return {"success": False, "message": "Invalid credentials"}
+
+@api.get("/auth/me", auth=django_auth)
+def me_view(request):
+    user = request.user
+    return {
+        "id": user.id,
+        "email": user.email,
+        "username": user.username,
+    }
  
 @api.post("/auth/logout", auth=django_auth)
 def logout_view(request):
@@ -50,5 +59,15 @@ def register(request, payload: schemas.SignInSchema):
         return {"success": "User registered successfully"}
     except Exception as e:
         return {"error": str(e)}
- 
-
+    
+@api.post("/auth/change-password", auth=django_auth)
+def reset_password(request, payload: schemas.ChangePasswordSchema):
+    try:
+        user = user.objects.get(old_password=payload.old_password, new_password=payload.new_password)
+        user.set_password(payload.new_password)
+        user.save()
+        return {"success": "Password changed successfully", "status": 200}
+    except User.DoesNotExist:
+        return {"error": "Invalid old password", "status": 400}
+    except Exception as e:
+        return {"error": str(e), "status": 500}
