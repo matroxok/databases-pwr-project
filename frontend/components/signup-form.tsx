@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import * as React from 'react'
-import { register, fetchMe } from '@/lib/routes'
+import { register, fetchMe, login } from '@/lib/routes'
 import { useRouter } from 'next/navigation'
 
 import Link from 'next/link'
@@ -36,8 +36,11 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
 				throw new Error('Passwords do not match')
 			}
 
+			// register api/auth/register
 			await register(email, password)
-
+			// login api/auth/login
+			await login(email, password)
+			// zustand get user info (global)
 			const user = await fetchMe()
 			setUser(user)
 
