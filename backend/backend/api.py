@@ -5,8 +5,9 @@ from django.middleware.csrf import get_token
 from api.models import CustomUser as User
 from api import schemas
 from ninja.errors import HttpError
-
-
+from api.emails import send_mail, send_password_reset_email
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
 api = NinjaAPI(csrf=True)
 
 # health check api endpoint
@@ -84,5 +85,28 @@ def change_password(request, payload: schemas.ChangePasswordSchema):
 
     return {"succes": True, "status": 200, "detail": "Password changed succesfuly"}
     
-# @api.post("/auth/reset-password")
-# def reset_password(request, payload: schemas.ResetPasswordSchema):
+@api.post('/auth/reset-password', )
+def reset_password(request, payload: schemas.RequestResetPasswordSchema):
+    try:
+        user = User.objects.get(email=payload.email)
+        send_password_reset_email(user)
+        # return {"success": True}
+    except Exception as e:
+        return {"error": str(e)}
+    return {"detail": "Jeśli konto istnieje, wysłaliśmy link do resetu hasła."}
+
+@api.post("/auth/reset-password/confirm")
+def password_reset_confirm(request, payload: schemas.ResetPasswordConfirmSchema):
+    try:
+        uid = urlsafe_base64_decode(str(payload.uid)).decode()
+        user = User.objects.get(pk=uid)
+    except (User.DoesNotExist, ValueError, TypeError, OverflowError):
+        return api.create_response(request, {"detail": "Nieprawidłowy link."}, status=400)
+
+    if not default_token_generator.check_token(user, payload.token):
+        return api.create_response(request, {"detail": "Token resetu jest nieprawidłowy lub wygasł."}, status=400)
+
+    user.set_password(payload.new_password)
+    user.save()
+
+    return {"success": True, "status": 200, "detail": "Password changed succesfully"}

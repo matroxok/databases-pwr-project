@@ -12,7 +12,10 @@ class ChangePasswordSchema(BaseModel):
 class RequestResetPasswordSchema(BaseModel):
     email: EmailStr
 
-class ResetPasswordSchema(BaseModel):
-    email: str
+class ResetPasswordConfirmSchema(BaseModel):
+    uid: str
     token: str
     new_password: str
+
+class MessageSchema(BaseModel):
+    detail: str

@@ -59,10 +59,10 @@ MIDDLEWARE = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-FRONTEDN_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 
-CORS_ALLOWED_ORIGINS = [FRONTEDN_URL]
-CSRF_TRUSTED_ORIGINS = [FRONTEDN_URL] 
+CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
+CSRF_TRUSTED_ORIGINS = [FRONTEND_URL]
 
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
@@ -153,3 +153,5 @@ SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE   = "Lax"
 SESSION_COOKIE_SECURE = False  # dev
 CSRF_COOKIE_SECURE = False  #dev
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend" # dev email terminal
