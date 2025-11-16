@@ -13,15 +13,17 @@ export default function AuthBootstrap() {
 	useEffect(() => {
 		;(async () => {
 			try {
-				// 1) Ustaw CSRF cookie (przyda się później do POST-ów)
+				// set crsf token in cookie
 				await fetchCSRFToken()
+				// get api healthceck in logs
 				await apiHealthCheck()
 
-				// 2) Spróbuj pobrać aktualnie zalogowanego użytkownika
-				const me = await fetchMe() // <-- TU /auth/me
+				// try to get user info
+				const me = await fetchMe()
 				setUser(me)
 			} catch (_e) {
-				// brak sesji / 401 itp.
+				// if sessionid (user isn't logged) clear session informations form authstore.
+				// if in console is error [16/Nov/2025 23:53:05] "GET /api/auth/me HTTP/1.1" 401 26 // Not Found: | all its okay.
 				clear()
 			}
 		})()

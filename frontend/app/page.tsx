@@ -56,7 +56,7 @@ export default function Home() {
 				</div>
 				<p>other links:</p>
 				<div className="flex items-center gap-4">
-					<Link href="localhost:8000/api/docs" className="underline text-blue-500">
+					<Link href="http://localhost:8000/api/docs" target="blank" className="underline text-blue-500">
 						docs
 					</Link>
 				</div>

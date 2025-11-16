@@ -27,6 +27,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+				{/* save csrf token in cookie at the moment of render site */}
 				<AuthBootstrap />
 				{children}
 			</body>

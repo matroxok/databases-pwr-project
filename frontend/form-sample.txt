@@ -1,0 +1,159 @@
+// form.tsx
+
+"use client";
+import { useState } from "react";
+import FormStep2 from "./form/form-2";
+import FormStep1 from "./form/form-1";
+
+type FormData = {
+  name: string | null;
+  email: string | null;
+  address: string | null;
+  option: string | null;
+  emailSend: boolean;
+  dietId: string | null;
+};
+
+export default function Form() {
+  // 1 - IMIE, MAIL
+  // 2- ADRESS
+
+  const [step, setStep] = useState(0);
+
+  const [formData, setFormData] = useState<FormData>({ name: null, email: null, address: null, option: null, emailSend: false, dietId: null });
+const diety = [
+    { id: "1", name: "Dieta Standard" },
+    { id: "2", name: "Dieta Chujowa" },
+    { id: "3", name: "Dieta dla Cwela" },
+  ]
+  return <>
+    {step === 0 && (
+      <FormStep1
+        name={formData.name}
+        email={formData.email}
+        emailSend={formData.emailSend}
+        onNext={(name, email, emailSend) => {
+          setFormData({ ...formData, name: name, email, emailSend });
+          setStep(1);
+        }}
+      />
+    )}
+    {step === 1 && (
+      <FormStep2
+        address={formData.address}
+        option={formData.option}
+        dietId={formData.dietId}
+        onBack={(address, option, dietId) => {
+          setFormData({ ...formData, address, option, dietId });
+          setStep(0)
+        }}
+        onNext={(address, option, dietId) => {
+          setFormData({ ...formData, address, option, dietId });
+
+          if(formData.name === null || formData.email === null || formData.address === null || formData.option === null || formData.dietId === null) {
+            alert("Wypełnij wszystkie pola");
+            return;
+          }
+
+          setStep(2);
+        }}
+      />
+    )}
+    {step === 2 && (
+      <div>
+        <h2>Podsumowanie</h2>
+        <p>Imię: {formData.name}</p>
+        <p>Email: {formData.email}</p>
+        <p>Adres: {formData.address}</p>
+        <p>Opcja: {formData.option}</p>
+        <p>Wysyłać maile: {formData.emailSend ? "Tak" : "Nie"}</p>
+        <p>Dieta ID: {diety.find(d => d.id === formData.dietId)?.name}</p>
+        <button onClick={() => setStep(1)}>Wstecz</button>
+        <button onClick={() => alert("Formularz wysłany!")}>Wyślij</button>
+      </div>
+    )}
+  </>
+}
+
+
+// form-1.tsx
+import { useRef, useState } from "react";
+
+export default function FormStep1(
+  { name, email, emailSend, onNext }: { name: string | null; email: string | null; emailSend: boolean; onNext: (name: string | null, email: string | null, emailSend: boolean) => void }
+) {
+  "use client";
+
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+
+  const [tempSendEmail, setTempSendEmail] = useState(emailSend);
+
+  return <>
+    <h2>FORM STEP 1</h2>
+    <input ref={nameRef} placeholder="Imię" defaultValue={name ?? ""} />
+    <input ref={emailRef} placeholder="Email" defaultValue={email ?? ""} />
+
+    <button style={
+      tempSendEmail ? { backgroundColor: "green", color: "white" } : {}
+    } onClick={() => setTempSendEmail(true)}>Wysyłaj maile</button>
+    <button style={
+      !tempSendEmail ? { backgroundColor: "green", color: "white" } : {}
+    } onClick={() => setTempSendEmail(false)}>Nie wysyłaj maile</button>
+
+    
+
+    <button onClick={() => onNext(nameRef.current?.value ?? null, emailRef.current?.value ?? null, tempSendEmail)}>Dalej</button>
+  </>
+}
+
+// form-2.tsx
+import { useEffect, useRef, useState } from "react";
+
+export default function FormStep2({
+  address, dietId, onNext, onBack
+}: { address: string | null; option: string | null, dietId: string | null; onNext: (address: string | null, option: string | null, dietId : string | null) => void; onBack: (
+  address: string | null, option: string | null, dietId : string | null
+) => void
+}) {
+  "use client";
+
+  const addressRef = useRef<HTMLInputElement>(null);
+  const selectRef = useRef<HTMLSelectElement>(null);
+
+  const diety = [
+    { id: "1", name: "Dieta Standard" },
+    { id: "2", name: "Dieta Chujowa" },
+    { id: "3", name: "Dieta dla Cwela" },
+  ]
+
+  const [selectedDietId, setSelectedDietId] = useState<string | null>(dietId);
+
+  return <>
+    <input ref={addressRef} placeholder="Adres" defaultValue={address ?? ""} />
+
+    <select ref={selectRef}>
+      <option value="opcja1">Opcja 1</option>
+      <option value="opcja2">Opcja 2</option>
+      <option value="opcja3">Opcja 3</option>
+    </select>
+
+    // radio
+
+    <br/>
+    
+    {diety.map(d => (
+      <button key={d.id} style={
+        selectedDietId === d.id ? { backgroundColor: "green", color: "white" } : {}
+      } onClick={() => setSelectedDietId(d.id)}>{d.name}</button>
+    ))}
+
+    <br/>
+
+    
+    
+
+    <button onClick={() => onNext(addressRef.current?.value ?? null, selectRef.current?.value ?? null, selectedDietId)}>Dalej</button>
+    <button onClick={() => onBack(addressRef.current?.value ?? null, selectRef.current?.value ?? null, selectedDietId)}>Wstecz</button>
+  </>
+}
