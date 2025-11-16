@@ -137,7 +137,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 							</Field>
 
 							<FieldDescription className="text-center">
-								Don&apos;t have an account? <Link href="/signup">Sign up</Link>
+								Don&apos;t have an account? <Link href="/auth/signup">Sign up</Link>
 							</FieldDescription>
 						</FieldGroup>
 					</form>

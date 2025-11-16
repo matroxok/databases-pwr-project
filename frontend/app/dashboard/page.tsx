@@ -6,7 +6,7 @@ export default async function DashboardPage() {
 	const session = (await cookies()).get('sessionid')
 
 	if (!session) {
-		redirect('/login')
+		redirect('/auth/login')
 	}
 
 	const res = await fetch('http://localhost:8000/api/auth/me', {
