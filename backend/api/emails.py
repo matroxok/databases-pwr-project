@@ -11,7 +11,7 @@ def send_password_reset_email(user):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
 
-    reset_link = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"
+    reset_link = f"{settings.FRONTEND_URL}/auth/reset-password?uid={uid}&token={token}"
 
     subject = "Password reset"
     message = (

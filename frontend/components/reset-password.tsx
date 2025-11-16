@@ -7,22 +7,71 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 
+import { reset_password } from '@/lib/routes'
+
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 export function PasswordResetForm({ className, ...props }: React.ComponentProps<'div'>) {
 	const searchParms = useSearchParams()
 	const uid = searchParms.get('uid')
 	const token = searchParms.get('token')
+	const route = useRouter()
 
 	const [loading, setLoading] = React.useState(false)
 	const [error, setError] = React.useState<string | null>(null)
+
+	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault()
+		setError(null)
+		setLoading(true)
+
+		const fd = new FormData(e.currentTarget)
+		const new_password = String(fd.get('new_password') || '')
+		const confirm_new_password = String(fd.get('confirm_new_password') || '')
+
+		if (new_password !== confirm_new_password) {
+			setError('Hasła nie są takie same.')
+			setLoading(false)
+			return
+		}
+
+		console.log(uid, token, new_password)
+
+		try {
+			await reset_password(uid, token, new_password)
+			setTimeout(() => {
+				route.push('/auth/login')
+			}, 5000)
+		} catch (err: any) {
+			if (err?.response) {
+				const data = await err.response.json()
+				console.error('API error:', data)
+				setError(data.detail || data.error || 'Błąd przy zmianie hasła.')
+			} else {
+				console.error(err)
+				setError('Błąd sieci.')
+			}
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	if (!uid || !token) {
+		return (
+			<div>
+				<h1>error</h1>
+				<p>link has been experied or something want worng</p>
+			</div>
+		)
+	}
 
 	return (
 		<div className={cn('flex flex-col gap-6', className)} {...props}>
 			<Card className="overflow-hidden p-0">
 				<CardContent className="grid p-0 md:grid-cols-2">
-					<form className="p-6 md:p-8 space-y-4">
+					<form className="p-6 md:p-8 space-y-4" onSubmit={onSubmit}>
 						<FieldGroup>
 							<div className="flex flex-col items-center gap-2 text-center">
 								<h1 className="text-2xl font-bold">password reset</h1>
