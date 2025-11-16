@@ -1,10 +1,50 @@
+'use client'
+
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/lib/authStore'
+import { logout, reset_password_send_email } from '@/lib/routes'
+import { useState } from 'react'
 
 export default function Home() {
+	const router = useRouter()
+	const clear = useAuthStore(s => s.clear)
+
+	const [reset, setIsReset] = useState(false)
+	console.log(reset)
+
+	async function logoutAPI() {
+		try {
+			await logout()
+			router.push('/')
+			clear()
+		} catch {}
+	}
+
+	async function resetPasswordAPI(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault()
+
+		const formData = new FormData(e.currentTarget)
+		const email = String(formData.get('email') || '')
+
+		try {
+			if (!email) {
+				console.log('missing email')
+			}
+
+			await reset_password_send_email(email)
+		} catch (error) {
+			console.log(error)
+		} finally {
+			setIsReset(false)
+		}
+	}
+
 	return (
 		<div className="w-full h-screen flex items-center justify-center">
 			<div className="flex flex-col items-center justify-center">
 				<h1 className="font-bold text-2xl">dev hotel app</h1>
+				<h2 className="text-blue-400">public endpoints</h2>
 				<p className="pt-5">legend:</p>
 				<div className="flex gap-4 pt-2">
 					<div className="flex items-center gap-2">
@@ -39,15 +79,30 @@ export default function Home() {
 						Dashboard
 					</Link>
 					<Link
-						href="/auth/logout"
+						href="/"
+						onClick={logoutAPI}
 						className="px-2 py-2 border shadow-l active:bg-green-200 cursor-pointer text-xl bg-red-300">
 						Logout
 					</Link>
-					<Link
-						href="/auth/logout"
-						className="px-2 py-2 border shadow-l active:bg-green-200 cursor-pointer text-xl bg-green-200">
-						reset password
-					</Link>
+					<div>
+						{reset ? (
+							<form onSubmit={resetPasswordAPI} className="flex flex-col gap-2">
+								<input id="email" name="email" type="email" placeholder="Podaj email" required className="border p-2" />
+
+								<button
+									type="submit"
+									className="px-2 py-2 border shadow-l cursor-pointer text-xl bg-green-200 active:bg-green-300">
+									send
+								</button>
+							</form>
+						) : (
+							<button
+								onClick={() => setIsReset(true)}
+								className="px-2 py-2 border shadow-l active:bg-green-200 cursor-pointer text-xl bg-green-200">
+								reset password
+							</button>
+						)}
+					</div>
 					<Link
 						href="/auth/logout"
 						className="px-2 py-2 border shadow-l active:bg-green-200 cursor-pointer text-xl bg-blue-200">

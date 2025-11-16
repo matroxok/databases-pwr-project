@@ -11,7 +11,7 @@ export function LogoutButton() {
 		<button
 			onClick={async () => {
 				await logout()
-				router.push('/login')
+				router.push('/')
 				clear()
 			}}>
 			Wyloguj
