@@ -29,6 +29,7 @@ type FormStep1Props = {
 }
 
 export default function FormStep1({ dateStart, dateEnd, capacity, onNext }: FormStep1Props) {
+	// date picker default to today and tomorrow
 	const today = new Date()
 	const tomorrow = new Date(today)
 	tomorrow.setDate(today.getDate() + 1)

@@ -1,61 +1,78 @@
 'use client'
-import { useState } from 'react'
+
+import { useMemo } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import FormStep1 from './step-1'
 import FormStep2 from './step-2'
+import { useCartStore } from '@/store/useCartStore'
+import { toApiDate } from '@/lib/date-to-api'
+
+// jak bdz przycisk do ponownego wyszukania daty to resetujemy zamówienie tym
+// clearCart()
+// goToStep(0)
 
 type FormData = {
-	// first step on home page
 	dateStart: Date | null
 	dateEnd: Date | null
 	capacity: number | null
-	// second step on reservation page after render rooms consistent with the dates and number of people
 	roomName: string | null
 	roomType: string | null
 	roomCapacity: number | null
 	roomPricePerNight: number | null
 	roomDescription: string | null
-	//  third steop after user selected room
-	userName: string | null
-	userNameSurname: string | null
-	userEmail: string | null
-	userPhone: string | null
-	userAddress: string | null
-	userSecondaryAddress?: string | null
-	userCity: string | null
-	userPostalCode: string | null
-	userCountry: string | null
-	userMessage?: string | null
-	// fourth step sumary and payment
-	paymentMethod: string | null
+}
+
+type AvailableRoom = {
+	id: string
+	number: string
+	name: string
+	image: string
+	room_type: 'single' | 'double' | 'suite' | 'family'
+	capacity: number
+	price_per_night: string
+	description: string
+	is_active: boolean
 }
 
 export default function Form() {
-	const [step, setStep] = useState(0)
+	const searchParams = useSearchParams()
+	const router = useRouter()
+	const { setInitialCart, cart } = useCartStore()
+
+	// krok trzymamy w query param ?step=0/1/2
+	const step = useMemo(() => {
+		const raw = searchParams.get('step')
+		const n = raw ? Number(raw) : 0
+		return Number.isNaN(n) ? 0 : n
+	}, [searchParams])
+
+	const goToStep = (nextStep: number) => {
+		const params = new URLSearchParams(searchParams.toString())
+		params.set('step', String(nextStep))
+		router.push(`?${params.toString()}`, { scroll: false })
+	}
 
 	const [formData, setFormData] = useState<FormData>({
 		dateStart: null,
 		dateEnd: null,
 		capacity: null,
-		// second step on reservation page after render rooms consistent with the dates and number of people
 		roomName: null,
 		roomType: null,
 		roomCapacity: null,
 		roomPricePerNight: null,
 		roomDescription: null,
-		//  third steop after user selected room
-		userName: null,
-		userNameSurname: null,
-		userEmail: null,
-		userPhone: null,
-		userAddress: null,
-		userSecondaryAddress: null,
-		userCity: null,
-		userPostalCode: null,
-		userCountry: null,
-		userMessage: null,
-		// fourth step sumary and payment
-		paymentMethod: null,
 	})
+
+	useEffect(() => {
+		const hasStepParam = searchParams.get('step') !== null
+
+		// auto-przeskakujemy do kroku 1 TYLKO przy "gołym" URL bez ?step=
+		if (cart && step === 0 && !hasStepParam) {
+			goToStep(1)
+		}
+	}, [cart, step, searchParams, goToStep])
+
 	return (
 		<>
 			{step === 0 && (
@@ -63,7 +80,8 @@ export default function Form() {
 					dateStart={formData.dateStart}
 					dateEnd={formData.dateEnd}
 					capacity={formData.capacity}
-					onNext={(dateStart, dateEnd, capacity, room) => {
+					onNext={(dateStart, dateEnd, capacity, room: AvailableRoom) => {
+						// 1) lokalny state (opcjonalne, ale niech będzie)
 						setFormData(prev => ({
 							...prev,
 							dateStart,
@@ -75,48 +93,29 @@ export default function Form() {
 							roomPricePerNight: Number(room.price_per_night),
 							roomDescription: room.description,
 						}))
-						setStep(1)
+
+						// 2) zapis do koszyka (Zustand + najlepiej persist)
+						const dateStartStr = toApiDate(dateStart)!
+						const dateEndStr = toApiDate(dateEnd)!
+
+						setInitialCart({
+							dateStart: dateStartStr,
+							dateEnd: dateEndStr,
+							capacity,
+							room,
+						})
+
+						// 3) przejście do kroku 1 → zmiana URL-a
+						goToStep(1)
 					}}
 				/>
 			)}
-			{step === 1 && (
-				<FormStep2
-					address={formData.address}
-					option={formData.option}
-					dietId={formData.dietId}
-					onBack={(address, option, dietId) => {
-						setFormData({ ...formData, address, option, dietId })
-						setStep(0)
-					}}
-					onNext={(address, option, dietId) => {
-						setFormData({ ...formData, address, option, dietId })
 
-						if (
-							formData.name === null ||
-							formData.email === null ||
-							formData.address === null ||
-							formData.option === null ||
-							formData.dietId === null
-						) {
-							alert('Wypełnij wszystkie pola')
-							return
-						}
+			{step === 1 && <FormStep2 onBack={() => goToStep(0)} onNext={() => goToStep(2)} />}
 
-						setStep(2)
-					}}
-				/>
-			)}
 			{step === 2 && (
-				<div>
-					<h2>Podsumowanie</h2>
-					<p>Imię: {formData.name}</p>
-					<p>Email: {formData.email}</p>
-					<p>Adres: {formData.address}</p>
-					<p>Opcja: {formData.option}</p>
-					<p>Wysyłać maile: {formData.emailSend ? 'Tak' : 'Nie'}</p>
-					<p>Dieta ID: {diety.find(d => d.id === formData.dietId)?.name}</p>
-					<button onClick={() => setStep(1)}>Wstecz</button>
-					<button onClick={() => alert('Formularz wysłany!')}>Wyślij</button>
+				<div className="pt-10">
+					<h2>Podsumowanie / płatność (step 3)</h2>
 				</div>
 			)}
 		</>
