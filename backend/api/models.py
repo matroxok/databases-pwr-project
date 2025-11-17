@@ -3,14 +3,43 @@ from django.contrib.auth.models import AbstractUser
 
 from backend import settings
 
-class CustomUser(AbstractUser):
-    email = models.EmailField(unique=True)
+# class CustomUser(AbstractUser):
+#     email = models.EmailField(unique=True)
  
+#     USERNAME_FIELD = 'email'
+#     REQUIRED_FIELDS = ['username']
+ 
+#     def __str__(self):
+#         return self.email
+
+class CustomUser(AbstractUser):
+    ROLE_CHOICES = (
+        ("guest", "Guest"),
+        ("staff", "Staff"),
+        ("admin", "Admin"),
+    )
+
+    email = models.EmailField(unique=True)
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default="guest",
+    )
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
- 
+
     def __str__(self):
         return self.email
+
+    # helpers, przydają się w permissionach
+    @property
+    def is_staff_member(self) -> bool:
+        return self.role in ("staff", "admin")
+
+    @property
+    def is_admin(self) -> bool:
+        return self.role == "admin"
     
 
 class Room(models.Model):

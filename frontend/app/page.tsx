@@ -6,12 +6,27 @@ import { useAuthStore } from '@/lib/authStore'
 import { logout, reset_password_send_email } from '@/lib/routes'
 import { useState } from 'react'
 
+import { apiHealthCheck } from '@/lib/api'
+
 export default function Home() {
 	const router = useRouter()
 	const clear = useAuthStore(s => s.clear)
 
 	const [reset, setIsReset] = useState(false)
 	console.log(reset)
+
+	const [health, isHealth] = useState(false)
+
+	async function healthCheck() {
+		try {
+			await apiHealthCheck()
+			isHealth(true)
+		} catch (error) {
+			console.log('API offline')
+		}
+	}
+
+	healthCheck()
 
 	async function logoutAPI() {
 		try {
@@ -43,6 +58,20 @@ export default function Home() {
 	return (
 		<div className="w-full h-screen flex items-center justify-center">
 			<div className="flex flex-col items-center justify-center">
+				<div className="flex gap-2 items-center">
+					<p>API STATUS: </p>
+					{health ? (
+						<div className="flex gap-2 items-center">
+							<div className="w-4 h-4 bg-green-600 animate-pulse rounded-full"></div>
+							<p className="text-green-600">- online</p>
+						</div>
+					) : (
+						<div className="flex gap-2 items-center">
+							<div className="w-4 h-4 bg-red-600 animate-pulse rounded-full"></div>
+							<p className="text-red-600">- offline</p>
+						</div>
+					)}
+				</div>
 				<h1 className="font-bold text-2xl">dev hotel app</h1>
 				<h2 className="text-blue-400">public endpoints</h2>
 				<p className="pt-5">legend:</p>
@@ -112,7 +141,10 @@ export default function Home() {
 				<p>other links:</p>
 				<div className="flex items-center gap-4">
 					<Link href="http://localhost:8000/api/docs" target="blank" className="underline text-blue-500">
-						docs
+						API docs
+					</Link>
+					<Link href="http://localhost:8000/admin" target="blank" className="underline text-blue-500">
+						ADMIN PANEL
 					</Link>
 				</div>
 			</div>
