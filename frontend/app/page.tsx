@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/lib/authStore'
 import { logout, reset_password_send_email } from '@/lib/routes'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { apiHealthCheck } from '@/lib/api'
 import Form from '@/components/forms/reservation-form/reservation-form'
@@ -27,7 +27,9 @@ export default function Home() {
 		}
 	}
 
-	healthCheck()
+	useEffect(() => {
+		healthCheck()
+	}, [])
 
 	async function logoutAPI() {
 		try {
@@ -57,7 +59,7 @@ export default function Home() {
 	}
 
 	return (
-		<div className="w-full h-screen flex items-center justify-center">
+		<div className="container mx-auto flex items-center justify-center mt-10">
 			<div className="flex flex-col items-center justify-center">
 				<div className="flex gap-2 items-center">
 					<p>API STATUS: </p>

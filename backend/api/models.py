@@ -53,6 +53,7 @@ class Room(models.Model):
 
     id = models.CharField(unique=True, primary_key=True, default=uuid.uuid4, max_length=36, editable=False)
     number = models.CharField(max_length=10, unique=True)
+    image = models.ImageField(upload_to='room_images/', blank=True, null=True)
     name = models.CharField(max_length=100, blank=True)
     room_type = models.CharField(max_length=20, choices=ROOM_TYPES)
     capacity = models.PositiveIntegerField(default=1)
@@ -83,7 +84,7 @@ class Reservation(models.Model):
     )
     room = models.ForeignKey(
         Room,
-        on_delete=models.PROTECT,          # PROTECT
+        on_delete=models.PROTECT,
         related_name="reservations",
     )
 

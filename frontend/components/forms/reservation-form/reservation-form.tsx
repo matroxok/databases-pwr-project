@@ -4,42 +4,77 @@ import FormStep1 from './step-1'
 import FormStep2 from './step-2'
 
 type FormData = {
-	name: string | null
-	email: string | null
-	address: string | null
-	option: string | null
-	emailSend: boolean
-	dietId: string | null
+	// first step on home page
+	dateStart: Date | null
+	dateEnd: Date | null
+	capacity: number | null
+	// second step on reservation page after render rooms consistent with the dates and number of people
+	roomName: string | null
+	roomType: string | null
+	roomCapacity: number | null
+	roomPricePerNight: number | null
+	roomDescription: string | null
+	//  third steop after user selected room
+	userName: string | null
+	userNameSurname: string | null
+	userEmail: string | null
+	userPhone: string | null
+	userAddress: string | null
+	userSecondaryAddress?: string | null
+	userCity: string | null
+	userPostalCode: string | null
+	userCountry: string | null
+	userMessage?: string | null
+	// fourth step sumary and payment
+	paymentMethod: string | null
 }
 
 export default function Form() {
-	// 1 - IMIE, MAIL
-	// 2- ADRESS
-
 	const [step, setStep] = useState(0)
 
 	const [formData, setFormData] = useState<FormData>({
-		name: null,
-		email: null,
-		address: null,
-		option: null,
-		emailSend: false,
-		dietId: null,
+		dateStart: null,
+		dateEnd: null,
+		capacity: null,
+		// second step on reservation page after render rooms consistent with the dates and number of people
+		roomName: null,
+		roomType: null,
+		roomCapacity: null,
+		roomPricePerNight: null,
+		roomDescription: null,
+		//  third steop after user selected room
+		userName: null,
+		userNameSurname: null,
+		userEmail: null,
+		userPhone: null,
+		userAddress: null,
+		userSecondaryAddress: null,
+		userCity: null,
+		userPostalCode: null,
+		userCountry: null,
+		userMessage: null,
+		// fourth step sumary and payment
+		paymentMethod: null,
 	})
-	const diety = [
-		{ id: '1', name: 'Dieta Standard' },
-		{ id: '2', name: 'Dieta Chujowa' },
-		{ id: '3', name: 'Dieta dla Cwela' },
-	]
 	return (
 		<>
 			{step === 0 && (
 				<FormStep1
-					name={formData.name}
-					email={formData.email}
-					emailSend={formData.emailSend}
-					onNext={(name, email, emailSend) => {
-						setFormData({ ...formData, name: name, email, emailSend })
+					dateStart={formData.dateStart}
+					dateEnd={formData.dateEnd}
+					capacity={formData.capacity}
+					onNext={(dateStart, dateEnd, capacity, room) => {
+						setFormData(prev => ({
+							...prev,
+							dateStart,
+							dateEnd,
+							capacity,
+							roomName: room.name,
+							roomType: room.room_type,
+							roomCapacity: room.capacity,
+							roomPricePerNight: Number(room.price_per_night),
+							roomDescription: room.description,
+						}))
 						setStep(1)
 					}}
 				/>

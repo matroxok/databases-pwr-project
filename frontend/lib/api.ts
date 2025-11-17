@@ -1,7 +1,7 @@
 import { getCookie } from './cookies'
 
 const API = process.env.API_URL || 'http://localhost:8000/api'
-console.log(API)
+const API_IMAGE = process.env.API_IMAGE_URL || 'http://localhost:8000'
 
 export async function fetchCSRFToken() {
 	await fetch(`${API}/set-csrf-token`, {
@@ -34,6 +34,12 @@ export async function apiFetch<T>(path: string, options: RequestInit & { csrf?: 
 	}
 
 	return (await res.json()) as T
+}
+
+export function getRoomImageUrl(path: string): string {
+	if (!path) return `${API_IMAGE}/placeholder-room.jpg`
+	if (path.startsWith('http')) return path
+	return `${API_IMAGE}${path}`
 }
 
 // export async function apiFetch<T>(path: string, options: RequestInit & { csrf?: boolean } = {}): Promise<T> {

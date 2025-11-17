@@ -125,10 +125,11 @@ def password_reset_confirm(request, payload: schemas.ResetPasswordConfirmSchema)
 
 
 class RoomOut(Schema):
-    model_config = ConfigDict(from_attributes=True)  # ⬅️ KLUCZOWA LINIJKA
+    model_config = ConfigDict(from_attributes=True) 
 
     id: str
     number: str
+    image: str | None
     name: str | None
     room_type: str
     capacity: int

@@ -158,3 +158,7 @@ SESSION_COOKIE_SECURE = False  # dev
 CSRF_COOKIE_SECURE = False  #dev
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend" # dev email terminal
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

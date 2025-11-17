@@ -1,3 +1,4 @@
+import { ca } from 'date-fns/locale'
 import { apiFetch } from './api'
 
 export const fetchMe = () => apiFetch<any>('/auth/me', { method: 'GET' })
@@ -41,3 +42,16 @@ export const reset_password_send_email = (email: string) =>
 		},
 		body: JSON.stringify({ email }),
 	})
+
+export const getAvailableRooms = (check_in: string, check_out: string, guests: number) => {
+	const params = new URLSearchParams({
+		check_in,
+		check_out,
+		guests: guests.toString(),
+	})
+
+	return apiFetch(`/rooms/available?${params.toString()}`, {
+		method: 'GET',
+		csrf: true,
+	})
+}
