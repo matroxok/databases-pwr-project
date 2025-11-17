@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from backend import settings
+import uuid
 
 # class CustomUser(AbstractUser):
 #     email = models.EmailField(unique=True)
@@ -50,7 +51,7 @@ class Room(models.Model):
         ("family", "Family"),
     )
 
-    id = models.CharField(unique=True, primary_key=True)
+    id = models.CharField(unique=True, primary_key=True, default=uuid.uuid4, max_length=36, editable=False)
     number = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=100, blank=True)
     room_type = models.CharField(max_length=20, choices=ROOM_TYPES)

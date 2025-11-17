@@ -8,6 +8,16 @@ from ninja.errors import HttpError
 from api.emails import send_mail, send_password_reset_email
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
+from django.db.models import Q
+from datetime import date
+from decimal import Decimal
+from typing import List
+from api.models import Room
+from ninja import Schema
+from pydantic import ConfigDict
+
+
+
 api = NinjaAPI(csrf=True)
 
 # health check api endpoint
@@ -58,6 +68,7 @@ def user(request):
     }
  
  # create new user endpoint
+
 @api.post("/auth/register")
 def register(request, payload: schemas.SignInSchema):
     try:
@@ -110,3 +121,53 @@ def password_reset_confirm(request, payload: schemas.ResetPasswordConfirmSchema)
     user.save()
 
     return {"success": True, "status": 200, "detail": "Password changed succesfully"}
+
+
+
+class RoomOut(Schema):
+    model_config = ConfigDict(from_attributes=True)  # ⬅️ KLUCZOWA LINIJKA
+
+    id: str
+    number: str
+    name: str | None
+    room_type: str
+    capacity: int
+    price_per_night: Decimal
+    description: str | None
+    is_active: bool
+
+@api.get("/rooms/available", response=List[RoomOut])
+def get_available_rooms(
+    request,
+    check_in: date,
+    check_out: date,
+    guests: int,
+):
+    """
+    Zwraca listę pokoi dostępnych w podanym zakresie dat,
+    dla zadanej liczby gości.
+    """
+
+    # prosta walidacja
+    if check_out <= check_in:
+        # możesz też rzucić HttpError(400, "...")
+        raise ValueError("Data wyjazdu musi być późniejsza niż data przyjazdu.")
+
+    if guests <= 0:
+        raise ValueError("Liczba gości musi być dodatnia.")
+
+    # Statusy rezerwacji, które BLOKUJĄ pokój
+    blocking_statuses = ["pending", "confirmed"]
+
+    # Szukamy pokoi aktywnych, które mają wystarczającą pojemność
+    qs = Room.objects.filter(
+        is_active=True,
+        capacity__gte=guests,
+    ).exclude(
+        # wykluczamy te, które mają rezerwacje nachodzące na zakres
+        reservations__status__in=blocking_statuses,
+        reservations__check_in__lt=check_out,
+        reservations__check_out__gt=check_in,
+    ).order_by("number")
+
+    return qs

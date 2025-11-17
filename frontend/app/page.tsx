@@ -7,6 +7,7 @@ import { logout, reset_password_send_email } from '@/lib/routes'
 import { useState } from 'react'
 
 import { apiHealthCheck } from '@/lib/api'
+import Form from '@/components/forms/reservation-form/reservation-form'
 
 export default function Home() {
 	const router = useRouter()
@@ -146,6 +147,9 @@ export default function Home() {
 					<Link href="http://localhost:8000/admin" target="blank" className="underline text-blue-500">
 						ADMIN PANEL
 					</Link>
+				</div>
+				<div>
+					<Form />
 				</div>
 			</div>
 		</div>
