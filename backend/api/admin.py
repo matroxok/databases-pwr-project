@@ -13,13 +13,11 @@ class RoomAdmin(admin.ModelAdmin):
         "capacity",
         "price_per_night",
         "is_active",
-        "created_at",
     )
     list_filter = ("room_type", "is_active")
     search_fields = ("number", "name")
     ordering = ("number",)
 
     # pola tylko do odczytu (np. automatyczne timestampy)
-    readonly_fields = ("created_at", "updated_at")
+    # readonly_fields = ("updated_at", )
 
-# Register your models here.
