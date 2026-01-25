@@ -1,8 +1,51 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
-from .models import CustomUser, Room, Reservation, Payment
+from .models import CustomUser, Room, Reservation
 
+
+# ---------- CustomUser (CRUD w adminie) ----------
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = CustomUser
+        fields = ("email", "username", "role")
+
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta(UserChangeForm.Meta):
+        model = CustomUser
+        fields = ("email", "username", "role", "is_active", "is_staff", "is_superuser", "groups", "user_permissions")
+
+
+@admin.register(CustomUser)
+class CustomUserAdmin(DjangoUserAdmin):
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
+    model = CustomUser
+
+    list_display = ("id", "email", "username", "role", "is_active", "is_staff", "is_superuser")
+    list_filter = ("role", "is_active", "is_staff", "is_superuser", "groups")
+    search_fields = ("email", "username")
+    ordering = ("email",)
+
+    fieldsets = (
+        (None, {"fields": ("email", "password")}),
+        ("Dane", {"fields": ("username", "role")}),
+        ("Uprawnienia", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
+        ("Daty", {"fields": ("last_login", "date_joined")}),
+    )
+
+    add_fieldsets = (
+        (None, {
+            "classes": ("wide",),
+            "fields": ("email", "username", "role", "password1", "password2", "is_active", "is_staff", "is_superuser"),
+        }),
+    )
+
+
+# ---------- Room (masz już, zostawiam) ----------
 
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
@@ -18,6 +61,15 @@ class RoomAdmin(admin.ModelAdmin):
     search_fields = ("number", "name")
     ordering = ("number",)
 
-    # pola tylko do odczytu (np. automatyczne timestampy)
-    # readonly_fields = ("updated_at", )
 
+# ---------- Reservation (podgląd/dodanie/edycja/usunięcie) ----------
+
+@admin.register(Reservation)
+class ReservationAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "room", "check_in", "check_out", "status", "created_at")
+    list_filter = ("status", "room", "created_at")
+    search_fields = ("user__email", "room__number", "room__name")
+    ordering = ("-created_at",)
+
+    # wygodniejsze pola w formularzu (opcjonalne)
+    autocomplete_fields = ("user", "room")
