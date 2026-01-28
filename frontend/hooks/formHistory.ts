@@ -7,13 +7,14 @@ export function useStepWithHistory(initialStep = 0) {
 
 	useEffect(() => {
 		if (typeof window === 'undefined') return
-
-		// Upewniamy się, że pierwszy wpis w historii ma state ze stepem
 		window.history.replaceState({ step: initialStep }, '')
 
 		const handlePopState = (event: PopStateEvent) => {
-			// jeśli w state mamy step → cofamy tylko krok
-			const stateStep = (event.state && (event.state as any).step) ?? initialStep
+			interface HistoryState {
+				step: number
+			}
+
+			const stateStep = (event.state && (event.state as HistoryState).step) ?? initialStep
 			setStep(stateStep)
 		}
 

@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { LogoutButton } from '@/components/logout-button'
+import Navbar from '@/components/navbar'
 
 export default async function DashboardPage() {
 	const session = (await cookies()).get('sessionid')
 
 	if (!session) {
-		redirect('/auth/login')
+		redirect('/auth/signin')
 	}
 
 	const res = await fetch('http://localhost:8000/api/auth/me', {
@@ -21,6 +22,7 @@ export default async function DashboardPage() {
 
 	return (
 		<div>
+			<Navbar />
 			Witaj {user.email}! welcome.
 			<LogoutButton />
 		</div>
