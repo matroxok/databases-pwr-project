@@ -39,6 +39,12 @@ export function PasswordResetForm({ className, ...props }: React.ComponentProps<
 
 		console.log(uid, token, new_password)
 
+		if (!uid || !token) {
+			setError('Invalid reset link.')
+			setLoading(false)
+			return
+		}
+
 		try {
 			await reset_password(uid, token, new_password)
 			setTimeout(() => {

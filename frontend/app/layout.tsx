@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 
+import { Toaster } from 'sonner'
+
 import AuthBootstrap from './auth/providers/auth-bootstrap'
 
 const geistSans = Geist({
@@ -30,6 +32,7 @@ export default function RootLayout({
 				{/* save csrf token in cookie at the moment of render site */}
 				<AuthBootstrap />
 				{children}
+				<Toaster richColors />
 			</body>
 		</html>
 	)

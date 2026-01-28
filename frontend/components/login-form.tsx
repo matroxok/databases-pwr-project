@@ -5,20 +5,31 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
+import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 
-import { login, fetchMe } from '@/lib/routes'
+import { login, fetchMe, reset_password_send_email } from '@/lib/routes'
 import { useAuthStore } from '@/lib/authStore'
-import Image from 'next/image'
 
+import Image from 'next/image'
 import Link from 'next/link'
+
+// shadcn
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+
+// sonner
+import { toast } from 'sonner'
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
 	const router = useRouter()
 	const setUser = useAuthStore(s => s.setUser)
+
 	const [loading, setLoading] = React.useState(false)
 	const [error, setError] = React.useState<string | null>(null)
+
+	const [resetOpen, setResetOpen] = React.useState(false)
+	const [resetEmail, setResetEmail] = React.useState('')
+	const [resetLoading, setResetLoading] = React.useState(false)
 
 	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault()
@@ -30,20 +41,34 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 		const password = String(fd.get('password') || '')
 
 		try {
-			// 1) logowanie (CSRF + cookies po stronie fetchów w lib/routes)
 			await login(email, password)
-
-			// 2) pobranie zalogowanego usera
 			const me = await fetchMe()
-			setUser(me)
-
-			// 3) redirect do panelu
 			router.push('/dashboard')
 		} catch (err: any) {
-			// pokaż komunikat (możesz dopasować pod swój backend)
 			setError(err?.message?.toString() || 'Nie udało się zalogować. Sprawdź dane i spróbuj ponownie.')
 		} finally {
 			setLoading(false)
+		}
+	}
+
+	async function onResetPassword() {
+		const email = resetEmail.trim()
+
+		if (!email) {
+			toast.error('Podaj adres email')
+			return
+		}
+
+		try {
+			setResetLoading(true)
+			await reset_password_send_email(email)
+			toast.success('Jeśli konto istnieje, wysłaliśmy instrukcję resetu hasła.')
+			setResetOpen(false)
+			setResetEmail('')
+		} catch (err: any) {
+			toast.error(err?.message?.toString() || 'Nie udało się wysłać emaila resetującego hasło.')
+		} finally {
+			setResetLoading(false)
 		}
 	}
 
@@ -81,10 +106,62 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 							<Field>
 								<div className="flex items-center">
 									<FieldLabel htmlFor="password">Password</FieldLabel>
-									<a href="#" className="ml-auto text-sm underline-offset-2 hover:underline">
-										Zapomniałeś/aś hasła?
-									</a>
+
+									<div className="ml-auto">
+										<Popover open={resetOpen} onOpenChange={setResetOpen}>
+											<PopoverTrigger asChild>
+												<button
+													type="button"
+													className="text-sm underline-offset-2 hover:underline text-muted-foreground disabled:opacity-60"
+													disabled={loading}>
+													Zapomniałeś/aś hasła?
+												</button>
+											</PopoverTrigger>
+
+											<PopoverContent className="w-80" align="end">
+												<div className="space-y-3">
+													<div className="space-y-1">
+														<p className="text-sm font-medium">Reset hasła</p>
+														<p className="text-xs text-muted-foreground">
+															Podaj email — wyślemy instrukcję resetu hasła.
+														</p>
+													</div>
+
+													<Input
+														value={resetEmail}
+														onChange={e => setResetEmail(e.target.value)}
+														placeholder="email@domena.pl"
+														type="email"
+														autoComplete="email"
+														disabled={resetLoading}
+														// enter key
+														onKeyDown={e => {
+															if (e.key === 'Enter') {
+																e.preventDefault()
+																onResetPassword()
+															}
+														}}
+													/>
+
+													<div className="flex justify-end gap-2">
+														<Button
+															type="button"
+															variant="ghost"
+															onClick={() => setResetOpen(false)}
+															disabled={resetLoading}>
+															Anuluj
+														</Button>
+
+														<Button type="button" onClick={onResetPassword} disabled={resetLoading}>
+															{resetLoading ? 'Wysyłam...' : 'Wyślij'}
+														</Button>
+													</div>
+												</div>
+											</PopoverContent>
+										</Popover>
+									</div>
 								</div>
+
 								<Input
 									id="password"
 									name="password"
@@ -100,8 +177,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 									{loading ? 'Pracuję...' : 'Zaloguj'}
 								</Button>
 							</Field>
-
-							<Field className="grid grid-cols-3 gap-4"></Field>
 
 							<FieldDescription className="text-center">
 								Nie masz konta? <Link href="/auth/signup">Zarejestruj się</Link>
