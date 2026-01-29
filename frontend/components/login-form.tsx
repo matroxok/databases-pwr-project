@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -14,15 +14,16 @@ import { useAuthStore } from '@/lib/authStore'
 import Image from 'next/image'
 import Link from 'next/link'
 
-// shadcn
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-
-// sonner
 import { toast } from 'sonner'
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
 	const router = useRouter()
+	const searchParams = useSearchParams()
+
 	const setUser = useAuthStore(s => s.setUser)
+
+	const next = searchParams.get('next') || '/dashboard'
 
 	const [loading, setLoading] = React.useState(false)
 	const [error, setError] = React.useState<string | null>(null)
@@ -43,7 +44,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 		try {
 			await login(email, password)
 			const me = await fetchMe()
-			router.push('/dashboard')
+
+			setUser(me)
+			router.push(next ?? '/dashboard')
+
+			router.push(next)
 		} catch (err: any) {
 			setError(err?.message?.toString() || 'Nie udało się zalogować. Sprawdź dane i spróbuj ponownie.')
 		} finally {
@@ -53,7 +58,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 
 	async function onResetPassword() {
 		const email = resetEmail.trim()
-
 		if (!email) {
 			toast.error('Podaj adres email')
 			return
@@ -134,7 +138,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 														type="email"
 														autoComplete="email"
 														disabled={resetLoading}
-														// enter key
 														onKeyDown={e => {
 															if (e.key === 'Enter') {
 																e.preventDefault()
@@ -151,7 +154,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 															disabled={resetLoading}>
 															Anuluj
 														</Button>
-
 														<Button type="button" onClick={onResetPassword} disabled={resetLoading}>
 															{resetLoading ? 'Wysyłam...' : 'Wyślij'}
 														</Button>
@@ -179,7 +181,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 							</Field>
 
 							<FieldDescription className="text-center">
-								Nie masz konta? <Link href="/auth/signup">Zarejestruj się</Link>
+								Nie masz konta? <Link href={`/auth/signup?next=${encodeURIComponent(next)}`}>Zarejestruj się</Link>
 							</FieldDescription>
 						</FieldGroup>
 					</form>

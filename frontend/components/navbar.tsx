@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/lib/authStore'
 import { logout } from '@/lib/routes'
+import Link from 'next/dist/client/link'
 
 export default function Navbar() {
 	const [loggedIn, setLoggedIn] = useState<boolean | null>(null)
@@ -25,12 +26,11 @@ export default function Navbar() {
 
 	return (
 		<nav className="flex items-center justify-between py-3 px-12 bg-[#0746ba]">
-			<h1 className="text-white leading-tight">
+			<Link href="/" className="text-white leading-tight">
 				Hotel <span className="font-semibold">PROJECT</span>
 				<br />
 				<span className="text-xs">Najlepszy hotel w okolicy</span>
-			</h1>
-
+			</Link>
 			{loggedIn === null ? (
 				<span className="text-white text-sm opacity-80">...</span>
 			) : loggedIn ? (

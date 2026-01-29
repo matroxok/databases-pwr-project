@@ -1,12 +1,13 @@
 'use client'
+
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
+import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import * as React from 'react'
 import { register, fetchMe, login } from '@/lib/routes'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import Link from 'next/link'
 import { useAuthStore } from '@/lib/authStore'
@@ -15,8 +16,12 @@ import Image from 'next/image'
 export function SignupForm({ className, ...props }: React.ComponentProps<'div'>) {
 	const [loading, setLoading] = React.useState(false)
 	const [error, setError] = React.useState<string | null>(null)
+
 	const setUser = useAuthStore(s => s.setUser)
+
 	const router = useRouter()
+	const searchParams = useSearchParams()
+	const next = searchParams.get('next') || '/dashboard'
 
 	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault()
@@ -29,23 +34,16 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
 		const confirmPassword = String(formData.get('confirm-password') || '')
 
 		try {
-			if (email.length === 0) {
-				throw new Error('Email is required')
-			}
+			if (email.length === 0) throw new Error('Email is required')
+			if (password !== confirmPassword) throw new Error('Passwords do not match')
 
-			if (password !== confirmPassword) {
-				throw new Error('Passwords do not match')
-			}
-
-			// register api/auth/register
 			await register(email, password)
-			// login api/auth/login
 			await login(email, password)
+
 			const user = await fetchMe()
 			setUser(user)
 
-			console.log('user succesfuly registered')
-			router.push('/dashboard')
+			router.push(next)
 		} catch (error) {
 			setError(error instanceof Error ? error.message : String(error))
 		} finally {
@@ -66,6 +64,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
 									Hotelu <span className="font-bold">PROJECT</span>
 								</p>
 							</div>
+
 							<Field>
 								<FieldLabel htmlFor="email">Email</FieldLabel>
 								<Input
@@ -79,6 +78,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
 								/>
 								<FieldDescription>Podaj swój adres email, którego będziesz używać do logowania.</FieldDescription>
 							</Field>
+
 							<Field>
 								<Field className="grid grid-cols-2 gap-4">
 									<Field>
@@ -105,6 +105,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
 									</Field>
 								</Field>
 							</Field>
+
 							<Field>
 								<Button type="submit" disabled={loading} className="w-full">
 									{loading ? 'Rejestruję...' : 'Zarejestruj się'}
@@ -112,11 +113,13 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
 								{error && <p className="text-sm text-red-500 mt-2">{error}</p>}
 							</Field>
 
+							{/* ✅ protip: przenosimy next do signin */}
 							<FieldDescription className="text-center">
-								Masz już konto? <Link href="/auth/signin">Zaloguj się</Link>
+								Masz już konto? <Link href={`/auth/signin?next=${encodeURIComponent(next)}`}>Zaloguj się</Link>
 							</FieldDescription>
 						</FieldGroup>
 					</form>
+
 					<div className="bg-muted relative hidden md:block">
 						<Image
 							src="/assets/LOGO_HOTEL_IMG.png"

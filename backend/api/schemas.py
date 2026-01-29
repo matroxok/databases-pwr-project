@@ -27,7 +27,6 @@ class MessageSchema(Schema):
 
 class RoomOut(Schema):
     model_config = ConfigDict(from_attributes=True)
-
     id: str
     number: str
     image: Optional[str] = None
@@ -38,6 +37,7 @@ class RoomOut(Schema):
     price_per_night: Decimal
     description: Optional[str] = None
     is_active: bool
+    
 
 
 class CreateReservationSchema(Schema):
@@ -57,3 +57,9 @@ class ReservationOut(Schema):
     status: str
     notes: Optional[str] = None
     created_at: str
+
+class UpdateReservationSchema(Schema):
+    check_in: date
+    check_out: date
+    guests_count: int
+    notes: Optional[str] = ""

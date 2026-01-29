@@ -203,3 +203,112 @@ def create_reservation(request, payload: schemas.CreateReservationSchema):
         "notes": r.notes,
         "created_at": r.created_at.isoformat(),
     }
+
+# ===========================
+# RESERVATIONS - LIST (MY)
+# ===========================
+@api.get("/reservations", auth=django_auth, response=List[schemas.ReservationOut])
+def list_my_reservations(request):
+    qs = (
+        Reservation.objects
+        .filter(user=request.user)
+        .order_by("-created_at")
+    )
+
+    return [
+        {
+            "id": r.id,
+            "room_id": str(r.room_id),
+            "check_in": r.check_in,
+            "check_out": r.check_out,
+            "guests_count": r.guests_count,
+            "status": r.status,
+            "notes": r.notes,
+            "created_at": r.created_at.isoformat(),
+        }
+        for r in qs
+    ]
+
+
+# ===========================
+# RESERVATIONS - UPDATE (MY)
+# ===========================
+@api.put("/reservations/{reservation_id}", auth=django_auth, response=schemas.ReservationOut)
+def update_my_reservation(request, reservation_id: int, payload: schemas.UpdateReservationSchema):
+    if payload.check_out <= payload.check_in:
+        raise HttpError(400, "Data wyjazdu musi być późniejsza niż data przyjazdu.")
+    if payload.guests_count <= 0:
+        raise HttpError(400, "Liczba gości/miejsc musi być dodatnia.")
+
+    blocking_statuses = ["pending", "confirmed"]
+
+    with transaction.atomic():
+        r = (
+            Reservation.objects
+            .select_for_update()
+            .select_related("room")
+            .filter(id=reservation_id, user=request.user)
+            .first()
+        )
+        if not r:
+            raise HttpError(404, "Rezerwacja nie istnieje.")
+
+        # (opcjonalnie) nie pozwól edytować jeśli np. cancelled/completed
+        # jeśli chcesz:
+        # if r.status not in ["pending", "confirmed"]:
+        #     raise HttpError(400, "Nie można edytować tej rezerwacji.")
+
+        room = r.room
+
+        total_places = room.beds if room.room_type == "multi_room" else room.capacity
+        if payload.guests_count > total_places:
+            raise HttpError(400, "Liczba miejsc przekracza pojemność pokoju.")
+
+        # policz zajętość z wyłączeniem tej rezerwacji
+        reserved_places = Reservation.objects.filter(
+            room=room,
+            status__in=blocking_statuses,
+            check_in__lt=payload.check_out,
+            check_out__gt=payload.check_in,
+        ).exclude(id=r.id).aggregate(total=Coalesce(Sum("guests_count"), 0))["total"]
+
+        free_places = total_places - reserved_places
+        if payload.guests_count > free_places:
+            raise HttpError(409, f"Brak miejsc. Wolne: {free_places}.")
+
+        r.check_in = payload.check_in
+        r.check_out = payload.check_out
+        r.guests_count = payload.guests_count
+        r.notes = payload.notes or ""
+        r.save()
+
+    return {
+        "id": r.id,
+        "room_id": str(room.id),
+        "check_in": r.check_in,
+        "check_out": r.check_out,
+        "guests_count": r.guests_count,
+        "status": r.status,
+        "notes": r.notes,
+        "created_at": r.created_at.isoformat(),
+    }
+
+
+# ===========================
+# RESERVATIONS - DELETE (MY)
+# ===========================
+@api.delete("/reservations/{reservation_id}")
+def delete_my_reservation(request, reservation_id: int):
+    if not request.user.is_authenticated:
+        raise HttpError(401, "User is not authenticated")
+
+    r = Reservation.objects.filter(id=reservation_id, user=request.user).first()
+    if not r:
+        raise HttpError(404, "Rezerwacja nie istnieje.")
+
+    # (opcjonalnie) blokada usuwania przy confirmed itd.
+    # if r.status == "confirmed":
+    #     raise HttpError(400, "Nie można usunąć potwierdzonej rezerwacji.")
+
+    r.delete()
+    return {"success": True}
