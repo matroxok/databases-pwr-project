@@ -113,7 +113,6 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
 								{error && <p className="text-sm text-red-500 mt-2">{error}</p>}
 							</Field>
 
-							{/* ✅ protip: przenosimy next do signin */}
 							<FieldDescription className="text-center">
 								Masz już konto? <Link href={`/auth/signin?next=${encodeURIComponent(next)}`}>Zaloguj się</Link>
 							</FieldDescription>

@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+const baseUrl = process.env.API_URL
 
 function requireBaseUrl() {
 	if (!baseUrl) {
-		return NextResponse.json({ message: 'Brak NEXT_PUBLIC_API_BASE_URL' }, { status: 500 })
+		return NextResponse.json({ message: 'Brak API_URL' }, { status: 500 })
 	}
 	return null
 }
@@ -37,11 +37,11 @@ async function forward(req: Request, url: string) {
 export async function PUT(req: Request, ctx: { params: { id: string } }) {
 	const err = requireBaseUrl()
 	if (err) return err
-	return forward(req, `${baseUrl}/api/reservations/${ctx.params.id}`)
+	return forward(req, `${baseUrl}/reservations/${ctx.params.id}`)
 }
 
 export async function DELETE(req: Request, ctx: { params: { id: string } }) {
 	const err = requireBaseUrl()
 	if (err) return err
-	return forward(req, `${baseUrl}/a/reservations/${ctx.params.id}`)
+	return forward(req, `${baseUrl}/reservations/${ctx.params.id}`)
 }

@@ -8,10 +8,6 @@ import FormStep2 from './step-2'
 import { useCartStore } from '@/store/useCartStore'
 import { toApiDate } from '@/lib/date-to-api'
 
-// jak bdz przycisk do ponownego wyszukania daty to resetujemy zamówienie tym
-// clearCart()
-// goToStep(0)
-
 type FormData = {
 	dateStart: Date | null
 	dateEnd: Date | null
@@ -40,7 +36,6 @@ export default function Form() {
 	const router = useRouter()
 	const { setInitialCart, cart } = useCartStore()
 
-	// krok trzymamy w query param ?step=0/1/2
 	const step = useMemo(() => {
 		const raw = searchParams.get('step')
 		const n = raw ? Number(raw) : 0
@@ -67,7 +62,6 @@ export default function Form() {
 	useEffect(() => {
 		const hasStepParam = searchParams.get('step') !== null
 
-		// auto-przeskakujemy do kroku 1 TYLKO przy "gołym" URL bez ?step=
 		if (cart && step === 0 && !hasStepParam) {
 			goToStep(1)
 		}
@@ -81,7 +75,6 @@ export default function Form() {
 					dateEnd={formData.dateEnd}
 					capacity={formData.capacity}
 					onNext={(dateStart, dateEnd, capacity, room: AvailableRoom) => {
-						// 1) lokalny state (opcjonalne, ale niech będzie)
 						setFormData(prev => ({
 							...prev,
 							dateStart,
@@ -94,7 +87,6 @@ export default function Form() {
 							roomDescription: room.description,
 						}))
 
-						// 2) zapis do koszyka (Zustand + najlepiej persist)
 						const dateStartStr = toApiDate(dateStart)!
 						const dateEndStr = toApiDate(dateEnd)!
 
@@ -105,7 +97,6 @@ export default function Form() {
 							room,
 						})
 
-						// 3) przejście do kroku 1 → zmiana URL-a
 						goToStep(1)
 					}}
 				/>

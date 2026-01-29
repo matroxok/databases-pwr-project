@@ -63,8 +63,6 @@ export default function FormStep2({ onNext, onBack }: FormStep2Props) {
 	return (
 		<div className="pt-10 flex flex-col gap-6">
 			<h2 className="text-xl font-semibold">FORM STEP 2 – Dane gościa</h2>
-
-			{/* podsumowanie z koszyka */}
 			<div className="border rounded-lg p-4 bg-card">
 				<p>
 					<strong>Pokój:</strong> {cart.roomName} ({cart.roomType}), max {cart.roomCapacity} os.

@@ -43,7 +43,6 @@ export default function RoomSearch() {
 
 	const isAuthenticated = useAuthStore(s => s.isAuthenticated)
 
-	// default dates
 	const today = new Date()
 	const tomorrow = new Date(today)
 	tomorrow.setDate(today.getDate() + 1)
@@ -57,7 +56,6 @@ export default function RoomSearch() {
 	const [error, setError] = React.useState<string | null>(null)
 	const [hasSearched, setHasSearched] = React.useState(false)
 
-	// reservation dialog state
 	const [reserveOpen, setReserveOpen] = React.useState(false)
 	const [selectedRoom, setSelectedRoom] = React.useState<AvailableRoom | null>(null)
 	const [notes, setNotes] = React.useState('')
@@ -96,8 +94,6 @@ export default function RoomSearch() {
 		}
 	}, [startDate, endDate, capacity])
 
-	// ✅ protip: jeżeli wróciliśmy z logowania i mamy w URL reserveRoomId,
-	// to wznawiamy rezerwację (automatyczny search + otwarcie dialogu)
 	React.useEffect(() => {
 		const reserveRoomId = searchParams.get('reserveRoomId')
 		const checkIn = searchParams.get('checkIn')
@@ -107,23 +103,17 @@ export default function RoomSearch() {
 		if (!reserveRoomId) return
 		if (!isAuthenticated) return
 
-		// jeśli parametry są w URL, ustaw stan wyszukiwarki
 		if (checkIn) setStartDate(new Date(checkIn))
 		if (checkOut) setEndDate(new Date(checkOut))
 		if (guests) setCapacity(Number(guests) || 1)
 
-		// jeśli nie szukaliśmy jeszcze / nie mamy pokoi, odpal search
-		// potem jak przyjdą pokoje, kolejny efekt otworzy dialog
 		if (!hasSearched) {
-			// mała kolejka, żeby state zdążył się ustawić
 			setTimeout(() => {
 				handleSearch()
 			}, 0)
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated])
 
-	// gdy mamy pokoje i w URL jest reserveRoomId → otwórz dialog na właściwym pokoju
 	React.useEffect(() => {
 		const reserveRoomId = searchParams.get('reserveRoomId')
 		if (!reserveRoomId) return
@@ -134,7 +124,6 @@ export default function RoomSearch() {
 		const room = rooms.find(r => r.id === reserveRoomId)
 		if (!room) {
 			toast.error('Nie znaleziono pokoju do rezerwacji w aktualnych wynikach.')
-			// usuń reserveRoomId, żeby nie zapętlać
 			const params = new URLSearchParams(searchParams.toString())
 			params.delete('reserveRoomId')
 			router.replace(`?${params.toString()}`, { scroll: false })
@@ -166,18 +155,15 @@ export default function RoomSearch() {
 			return
 		}
 
-		// zalogowany → normalnie otwieramy dialog
 		setSelectedRoom(room)
 		setReserveOpen(true)
 
-		// optional: uzupełnij URL żeby po refreshie dalej było wiadomo co rezerwujemy
 		router.replace(`?${params.toString()}`, { scroll: false })
 	}
 
 	const clearReserveFromUrl = () => {
 		const params = new URLSearchParams(searchParams.toString())
 		params.delete('reserveRoomId')
-		// zostaw checkIn/checkOut/guests (przydatne do odtworzenia)
 		router.replace(`?${params.toString()}`, { scroll: false })
 	}
 
@@ -307,8 +293,6 @@ export default function RoomSearch() {
 					)}
 				</div>
 			)}
-
-			{/* Dialog potwierdzenia */}
 			<Dialog
 				open={reserveOpen}
 				onOpenChange={open => {

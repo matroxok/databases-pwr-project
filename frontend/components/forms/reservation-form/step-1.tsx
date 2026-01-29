@@ -29,7 +29,6 @@ type FormStep1Props = {
 }
 
 export default function FormStep1({ dateStart, dateEnd, capacity, onNext }: FormStep1Props) {
-	// date picker default to today and tomorrow
 	const today = new Date()
 	const tomorrow = new Date(today)
 	tomorrow.setDate(today.getDate() + 1)
@@ -43,7 +42,6 @@ export default function FormStep1({ dateStart, dateEnd, capacity, onNext }: Form
 	const [error, setError] = useState<string | null>(null)
 	const [hasSearched, setHasSearched] = useState(false)
 
-	// 1) klik "Szukaj pokoi" – tylko fetch
 	const handleSearch = async () => {
 		if (!startDate || !endDate) {
 			setError('Wybierz daty przyjazdu i wyjazdu')
@@ -67,7 +65,6 @@ export default function FormStep1({ dateStart, dateEnd, capacity, onNext }: Form
 			setError(null)
 			setHasSearched(true)
 
-			// const data = await getAvailableRooms(dateStartAPI, dateEndAPI, localCapacity)
 			const data = (await getAvailableRooms(dateStartAPI, dateEndAPI, localCapacity)) as AvailableRoom[]
 			setRooms(data)
 			console.log(setRooms)
@@ -79,7 +76,6 @@ export default function FormStep1({ dateStart, dateEnd, capacity, onNext }: Form
 		}
 	}
 
-	// 2) klik "Wybierz ten pokój" – zapis + przejście do kolejnego kroku
 	const handleSelectRoom = (room: AvailableRoom) => {
 		if (!startDate || !endDate) {
 			setError('Brakuje dat – wybierz je jeszcze raz')
