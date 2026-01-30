@@ -51,6 +51,7 @@ class CreateReservationSchema(Schema):
 class ReservationOut(Schema):
     id: int
     room_id: str
+    room_name: str
     check_in: date
     check_out: date
     guests_count: int

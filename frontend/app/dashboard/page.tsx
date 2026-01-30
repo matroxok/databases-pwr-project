@@ -23,6 +23,7 @@ import Navbar from '@/components/navbar'
 type Reservation = {
 	id: number
 	room_id: string
+	room_name: string
 	check_in: string
 	check_out: string
 	guests_count: number
@@ -137,7 +138,7 @@ export default function MyReservations() {
 							<Table>
 								<TableHeader>
 									<TableRow>
-										<TableHead>ID</TableHead>
+										{/* <TableHead>ID</TableHead> */}
 										<TableHead>Pokój</TableHead>
 										<TableHead>Check-in</TableHead>
 										<TableHead>Check-out</TableHead>
@@ -149,8 +150,8 @@ export default function MyReservations() {
 								<TableBody>
 									{items.map(r => (
 										<TableRow key={r.id}>
-											<TableCell>{r.id}</TableCell>
-											<TableCell className="font-mono text-xs">{r.room_id}</TableCell>
+											{/* <TableCell>{r.id}</TableCell> */}
+											<TableCell className="font-mono text-xs">{r.room_name}</TableCell>
 											<TableCell>{r.check_in}</TableCell>
 											<TableCell>{r.check_out}</TableCell>
 											<TableCell>{r.guests_count}</TableCell>

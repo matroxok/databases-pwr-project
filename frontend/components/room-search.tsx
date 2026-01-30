@@ -140,7 +140,6 @@ export default function RoomSearch() {
 			return
 		}
 
-		// zapisujemy intencję rezerwacji w URL (żeby po logowaniu wrócić do tego samego pokoju)
 		const params = new URLSearchParams(searchParams.toString())
 		params.set('reserveRoomId', room.id)
 		params.set('checkIn', toApiDate(startDate)!)
@@ -207,10 +206,10 @@ export default function RoomSearch() {
 	}
 
 	return (
-		<div className="flex flex-col gap-6">
+		<div className="flex flex-col gap-6 bg-stone-200 p-5 rounded-lg shadow-2xl min-w-6xl shadow-red-500/20">
 			<header className="space-y-1">
-				<h1 className="text-2xl font-bold">Wyszukiwarka pokoi</h1>
-				<p className="text-sm text-muted-foreground">Wybierz daty i liczbę osób — pokażemy dostępne pokoje.</p>
+				<h1 className="text-2xl font-bold">Dzień Dobry, </h1>
+				<p className="text-sm text-muted-foreground">Wprowadź daty i liczbę osób.</p>
 			</header>
 
 			<Card>
@@ -256,7 +255,7 @@ export default function RoomSearch() {
 						<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 							{rooms.map(room => (
 								<Card key={room.id} className="overflow-hidden">
-									<div className="relative h-44 w-full bg-muted">
+									<div className="relative w-full h-72 bg-muted">
 										<Image
 											src={getRoomImageUrl(room.image)}
 											alt={room.name}

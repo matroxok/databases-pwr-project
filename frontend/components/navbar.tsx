@@ -25,7 +25,7 @@ export default function Navbar() {
 	}, [])
 
 	return (
-		<nav className="flex items-center justify-between py-3 px-12 bg-[#0746ba]">
+		<nav className="flex items-center justify-between py-3 px-12 bg-[#0746ba] shadow-stone-200 shadow-sm">
 			<Link href="/" className="text-white leading-tight">
 				Hotel <span className="font-semibold">PROJECT</span>
 				<br />
@@ -57,13 +57,13 @@ export default function Navbar() {
 					<button
 						type="button"
 						onClick={() => router.push('/auth/signup')}
-						className="bg-white text-[#0746ba] px-4 py-2 rounded text-sm font-medium hover:bg-gray-100">
+						className="bg-white text-[#0746ba] px-4 py-2 rounded text-sm font-medium hover:bg-gray-100 cursor-pointer">
 						Zarejestruj się
 					</button>
 					<button
 						type="button"
 						onClick={() => router.push('/auth/signin')}
-						className="bg-white text-[#0746ba] px-4 py-2 rounded text-sm font-medium hover:bg-gray-100">
+						className="bg-white text-[#0746ba] px-4 py-2 rounded text-sm font-medium hover:bg-gray-100 cursor-pointer">
 						Zaloguj się
 					</button>
 				</div>
