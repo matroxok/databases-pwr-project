@@ -185,6 +185,7 @@ def create_reservation(request, payload: schemas.CreateReservationSchema):
     return {
         "id": r.id,
         "room_id": str(room.id),
+        "room_name": room.name,
         "check_in": r.check_in,
         "check_out": r.check_out,
         "guests_count": r.guests_count,
