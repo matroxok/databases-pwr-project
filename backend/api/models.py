@@ -4,14 +4,6 @@ from django.contrib.auth.models import AbstractUser
 from backend import settings
 import uuid
 
-# class CustomUser(AbstractUser):
-#     email = models.EmailField(unique=True)
- 
-#     USERNAME_FIELD = 'email'
-#     REQUIRED_FIELDS = ['username']
- 
-#     def __str__(self):
-#         return self.email
 
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
@@ -33,7 +25,6 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.email
 
-    # helpers, przydają się w permissionach
     @property
     def is_staff_member(self) -> bool:
         return self.role in ("staff", "admin")
@@ -107,14 +98,12 @@ class Reservation(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-        # tu możesz później dodać np. unikalność w danym czasie, jeśli zrobisz walidację na konflikty
 
     def __str__(self):
         return f"Rezerwacja #{self.id} – {self.user.email} – pokój {self.room.number}"
 
     @property
     def nights(self):
-        # liczba nocy (przykładowa pomocnicza właściwość)
         return (self.check_out - self.check_in).days
 
 class Payment(models.Model):
@@ -134,17 +123,16 @@ class Payment(models.Model):
     reservation = models.ForeignKey(
         "Reservation",            
         on_delete=models.CASCADE,
-        related_name="payments",  # reservation.payments.all()
+        related_name="payments", 
     )
 
-    # opcjonalnie: jeśli chcesz łatwo filtrować po użytkowniku
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="payments",
     )
 
-    amount = models.DecimalField(max_digits=10, decimal_places=2)  # kwota brutto
+    amount = models.DecimalField(max_digits=10, decimal_places=2)  
     currency = models.CharField(max_length=3, default="PLN")
 
     method = models.CharField(
@@ -158,35 +146,36 @@ class Payment(models.Model):
         default="pending",
     )
 
-    # Stripe – identyfikatory do powiązania z płatnością
+#  TEN FRAGEMENT NIE ZOSTAŁ ZAIMPLEMENTOWANY 
     stripe_payment_intent_id = models.CharField(
         max_length=255,
         blank=True,
         null=True,
         help_text="ID PaymentIntenta w Stripe (dla płatności online)",
     )
+#  TEN FRAGEMENT NIE ZOSTAŁ ZAIMPLEMENTOWANY 
     stripe_charge_id = models.CharField(
         max_length=255,
         blank=True,
         null=True,
         help_text="ID charge'a w Stripe (jeśli używane)",
     )
+#  TEN FRAGEMENT NIE ZOSTAŁ ZAIMPLEMENTOWANY 
     stripe_session_id = models.CharField(
         max_length=255,
         blank=True,
         null=True,
         help_text="ID Checkout Session (jeśli używasz Stripe Checkout)",
     )
-
-    # Płatność w lokalu – numer paragonu / dokumentu z kasy
+#  TEN FRAGEMENT NIE ZOSTAŁ ZAIMPLEMENTOWANY 
     receipt_number = models.CharField(
         max_length=100,
         blank=True,
         null=True,
         help_text="Numer paragonu z kasy fiskalnej (dla płatności w lokalu)",
     )
-
-    paid_at = models.DateTimeField(blank=True, null=True)  # kiedy faktycznie opłacono
+#  TEN FRAGEMENT NIE ZOSTAŁ ZAIMPLEMENTOWANY 
+    paid_at = models.DateTimeField(blank=True, null=True)  #
     created_at = models.DateTimeField(auto_now_add=True)   # kiedy utworzono rekord płatności
     updated_at = models.DateTimeField(auto_now=True)       # ostatnia aktualizacja
 

@@ -21,10 +21,10 @@ DATABASE_URL=postgres://postgres:postgres@localhost:5432/hotel_db
 ```bash
 python -m venv venv
 ./venv/bin/activate
-pip install -r requirements.txt
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver
+(venv) pip install -r requirements.txt
+(venv) python manage.py makemigrations
+(venv) python manage.py migrate
+(venv) python manage.py runserver
 
 api: http://localhost:8000/api/docs
 ```
@@ -45,11 +45,10 @@ API_URL=http://localhost:8000/api
 - zustand
 
 ```bash
-pnpm / npm install 
+pnpm / npm install
 pnpm dev / npm run dev
 
 site: http://localhost:3000
-
 ```
 
 ## Database

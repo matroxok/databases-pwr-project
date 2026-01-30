@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser, Room, Reservation
 
 
-# ---------- CustomUser (CRUD w adminie) ----------
+# admin manage users
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -45,7 +45,7 @@ class CustomUserAdmin(DjangoUserAdmin):
     )
 
 
-# ---------- Room (masz już, zostawiam) ----------
+# admin manage rooms
 
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
@@ -62,14 +62,11 @@ class RoomAdmin(admin.ModelAdmin):
     ordering = ("number",)
 
 
-# ---------- Reservation (podgląd/dodanie/edycja/usunięcie) ----------
-
+# admin delete reservation
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "room", "check_in", "check_out", "status", "created_at")
     list_filter = ("status", "room", "created_at")
     search_fields = ("user__email", "room__number", "room__name")
     ordering = ("-created_at",)
-
-    # wygodniejsze pola w formularzu (opcjonalne)
     autocomplete_fields = ("user", "room")
